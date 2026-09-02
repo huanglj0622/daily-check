@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日常规检查登记系统</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.1);
+            --transition: 0.2s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 50%, #f0f4ff 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding-bottom: 40px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 20px;
+        }
+        /* 顶部栏 */
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -20%;
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+        }
+        .header .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-controls .control-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 6px 14px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .header-controls label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+        .header-controls input[type="date"],
+        .header-controls select {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 14px;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            color: var(--gray-800);
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .header-controls input[type="date"]:focus,
+        .header-controls select:focus {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+        }
+        .header-controls .weekday-display {
+            font-size: 1rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 14px;
+            border-radius: 14px;
+            white-space: nowrap;
+        }
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 4px;
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .tab-btn:hover {
+            color: var(--gray-700);
+            background: var(--gray-100);
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+        }
+        .tab-btn .badge {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .tab-btn.active .badge {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.25s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* 卡片 */
+        .card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px 22px;
+            margin-bottom: 18px;
+            transition: var(--transition);
+        }
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+        }
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title .icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .card-title .icon.lunch {
+            background: var(--warning-light);
+            color: #b45309;
+        }
+        .card-title .icon.sports {
+            background: var(--danger-light);
+            color: #b91c1c;
+        }
+        .card-title .icon.hygiene {
+            background: var(--success-light);
+            color: #065f46;
+        }
+        /* 添加表单 */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            min-width: 60px;
+            white-space: nowrap;
+        }
+        .category-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 20px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .category-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .category-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        .sub-option-btn {
+            padding: 6px 14px;
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .sub-option-btn:hover {
+            border-color: var(--warning);
+            color: #b45309;
+            background: var(--warning-light);
+        }
+        .sub-option-btn.selected {
+            border-color: var(--warning);
+            background: var(--warning);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+        }
+        .grade-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .grade-btn {
+            padding: 5px 12px;
+            border: 2px solid var(--gray-200);
+            border-radius: 14px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .grade-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .grade-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        .class-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .class-btn {
+            width: 40px;
+            height: 32px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            transition: var(--transition);
+        }
+        .class-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .class-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+        }
+        .text-input {
+            padding: 7px 12px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            min-width: 140px;
+            flex: 1;
+        }
+        .text-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .add-btn {
+            padding: 10px 24px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .add-btn:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+        .add-btn:active {
+            transform: translateY(0);
+        }
+        .add-btn:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        /* 记录列表 */
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .record-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .record-list::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 10px;
+        }
+        .record-list::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 10px;
+        }
+        .record-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: var(--gray-50);
+            border-left: 4px solid var(--gray-300);
+            transition: var(--transition);
+            flex-wrap: wrap;
+        }
+        .record-item:hover {
+            background: var(--gray-100);
+        }
+        .record-item.category-lunch {
+            border-left-color: var(--warning);
+        }
+        .record-item.category-sports {
+            border-left-color: var(--danger);
+        }
+        .record-item.category-hygiene {
+            border-left-color: var(--success);
+        }
+        .record-item .record-info {
+            flex: 1;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            min-width: 0;
+        }
+        .record-item .record-category-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .tag-lunch {
+            background: var(--warning-light);
+            color: #b45309;
+        }
+        .tag-sports {
+            background: var(--danger-light);
+            color: #b91c1c;
+        }
+        .tag-hygiene {
+            background: var(--success-light);
+            color: #065f46;
+        }
+        .record-item .delete-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: var(--gray-200);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            transition: var(--transition);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .record-item .delete-btn:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 30px 16px;
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+        .empty-state .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        /* 周总结 */
+        .week-summary-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .week-summary-header select {
+            padding: 7px 14px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            background: #fff;
+        }
+        .week-summary-header select:focus {
+            border-color: var(--primary);
+        }
+        .summary-date-group {
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .summary-date-header {
+            background: var(--gray-50);
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .summary-date-header .copy-day-btn {
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            border: 1px solid var(--gray-300);
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--gray-500);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .summary-date-header .copy-day-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .summary-text {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            white-space: pre-wrap;
+            line-height: 1.7;
+            font-family: inherit;
+        }
+        .copy-all-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+        }
+        .copy-all-btn:hover {
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+        .copy-all-btn:active {
+            transform: translateY(0);
+        }
+        .copy-all-btn.copied {
+            background: var(--success);
+        }
+        /* 统计信息 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .stat-card {
+            background: var(--gray-50);
+            border-radius: 10px;
+            padding: 12px 16px;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--gray-900);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.35s ease;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .container {
+                padding: 10px 12px;
+            }
+            .header {
+                padding: 18px 16px;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .card {
+                padding: 14px 12px;
+            }
+            .form-row {
+                gap: 6px;
+            }
+            .category-btn {
+                padding: 6px 12px;
+                font-size: 0.78rem;
+            }
+            .class-btn {
+                width: 34px;
+                height: 28px;
+                font-size: 0.7rem;
+            }
+            .tab-btn {
+                padding: 8px 10px;
+                font-size: 0.78rem;
+            }
+            .record-item {
+                padding: 8px 10px;
+                font-size: 0.78rem;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .header-controls {
+                gap: 6px;
+            }
+            .header-controls .control-group {
+                padding: 4px 10px;
+            }
+        }
+        @media (max-width: 380px) {
+            .class-btn {
+                width: 30px;
+                height: 26px;
+                font-size: 0.65rem;
+            }
+            .grade-btn {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 顶部栏 -->
+        <div class="header">
+            <h1>📋 每日常规检查登记</h1>
+            <div class="subtitle">执勤部门 · 快速登记 · 每周汇总</div>
+            <div class="header-controls">
+                <div class="control-group">
+                    <label>📅 日期</label>
+                    <input type="date" id="datePicker">
+                </div>
+                <div class="control-group">
+                    <label>📌 周次</label>
+                    <select id="weekSelect">
+                        <!-- JS 动态生成 1-25 周 -->
+                    </select>
+                </div>
+                <div class="control-group">
+                    <span class="weekday-display" id="weekdayDisplay">—</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="tab-add">
+                ➕ 今日登记 <span class="badge" id="todayBadge">0</span>
+            </button>
+            <button class="tab-btn" data-tab="tab-summary">
+                📊 每周总结 <span class="badge" id="weekBadge">0</span>
+            </button>
+        </div>
+
+        <!-- 今日登记 -->
+        <div class="tab-content active" id="tab-add">
+            <!-- 快捷添加 -->
+            <div class="card">
+                <div class="card-title">快速添加检查记录</div>
+                <div class="form-section">
+                    <!-- 步骤1: 选择类别 -->
+                    <div class="form-row">
+                        <span class="form-label">检查项目</span>
+                        <div class="category-btns">
+                            <button class="category-btn selected" data-category="lunch">🍽️ 午餐</button>
+                            <button class="category-btn" data-category="sports">🏃 综合体育课逗留</button>
+                            <button class="category-btn" data-category="hygiene">🧹 卫生情况</button>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2: 午餐子选项 -->
+                    <div class="form-row" id="lunchOptions">
+                        <span class="form-label">具体问题</span>
+                        <div class="category-btns">
+                            <button class="sub-option-btn selected" data-sub="lunch-tray">餐盘摆放不整齐</button>
+                            <button class="sub-option-btn" data-sub="lunch-trash">泔脚桶边上有垃圾</button>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2: 卫生子选项 -->
+                    <div class="form-row" id="hygieneOptions" style="display:none;">
+                        <span class="form-label">卫生区域</span>
+                        <div class="category-btns">
+                            <button class="sub-option-btn selected" data-sub="hygiene-outdoor">室外包干区</button>
+                            <button class="sub-option-btn" data-sub="hygiene-indoor">室内包干区</button>
+                            <button class="sub-option-btn" data-sub="hygiene-classroom">教室卫生</button>
+                        </div>
+                    </div>
+                    <div class="form-row" id="hygieneProblemRow" style="display:none;">
+                        <span class="form-label">问题类型</span>
+                        <div class="category-btns">
+                            <button class="sub-option-btn selected" data-sub="hygiene-problem-dirty">不干净</button>
+                            <button class="sub-option-btn" data-sub="hygiene-problem-trash">有垃圾</button>
+                        </div>
+                    </div>
+                    <div class="form-row" id="hygieneLocationRow" style="display:none;">
+                        <span class="form-label">具体位置</span>
+                        <input type="text" class="text-input" id="hygieneLocationInput" placeholder="如：操场、走廊、教室等" style="max-width:220px;">
+                    </div>
+
+                    <!-- 综合体育课逗留 - 姓名输入 -->
+                    <div class="form-row" id="sportsNameRow" style="display:none;">
+                        <span class="form-label">学生姓名</span>
+                        <input type="text" class="text-input" id="studentNameInput" placeholder="请输入学生姓名" style="max-width:180px;">
+                    </div>
+
+                    <!-- 步骤3: 选择班级 -->
+                    <div class="form-row">
+                        <span class="form-label">选择年级</span>
+                        <div class="grade-btns" id="gradeBtns">
+                            <button class="grade-btn selected" data-grade="六">六年级</button>
+                            <button class="grade-btn" data-grade="七">七年级</button>
+                            <button class="grade-btn" data-grade="八">八年级</button>
+                            <button class="grade-btn" data-grade="九">九年级</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <span class="form-label">选择班级</span>
+                        <div class="class-btns" id="classBtns">
+                            <!-- JS 动态生成 1-7 班 -->
+                        </div>
+                    </div>
+
+                    <!-- 添加按钮 -->
+                    <div class="form-row" style="justify-content:flex-end;">
+                        <button class="add-btn" id="addRecordBtn" disabled>
+                            ➕ 添加记录
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 当日记录列表 -->
+            <div class="card">
+                <div class="card-title">
+                    📝 当日已登记记录
+                    <span style="font-size:0.75rem;font-weight:500;color:var(--gray-400);" id="recordDateDisplay"></span>
+                </div>
+                <div class="record-list" id="recordList">
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div>暂无记录，请添加</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 每周总结 -->
+        <div class="tab-content" id="tab-summary">
+            <div class="card">
+                <div class="card-title">📊 每周汇总报告</div>
+                <div class="week-summary-header">
+                    <label style="font-weight:600;font-size:0.85rem;">选择周次：</label>
+                    <select id="summaryWeekSelect">
+                        <!-- JS 动态生成 -->
+                    </select>
+                    <button class="copy-all-btn" id="copyWeekBtn" style="width:auto;padding:8px 18px;font-size:0.85rem;">
+                        📋 一键复制本周汇总
+                    </button>
+                </div>
+                <!-- 统计 -->
+                <div class="stats-grid" id="weekStats">
+                    <!-- JS 动态 -->
+                </div>
+                <!-- 汇总内容 -->
+                <div id="summaryContent">
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <div>该周暂无记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            // ==================== 数据管理 ====================
+            const STORAGE_KEY = 'daily_check_records_v2';
+            let allRecords = [];
+
+            // 加载数据
+            function loadData() {
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        allRecords = JSON.parse(saved);
+                        if (!Array.isArray(allRecords)) allRecords = [];
+                    }
+                } catch (e) {
+                    console.error('加载数据失败:', e);
+                    allRecords = [];
+                }
+            }
+
+            // 保存数据
+            function saveData() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(allRecords));
+                } catch (e) {
+                    console.error('保存数据失败:', e);
+                    showToast('⚠️ 数据保存失败');
+                }
+            }
+
+            // ==================== 工具函数 ====================
+            function formatDateDisplay(dateStr) {
+                const d = new Date(dateStr + 'T00:00:00');
+                const month = d.getMonth() + 1;
+                const day = d.getDate();
+                return month + '月' + day + '日';
+            }
+
+            function getWeekdayDisplay(dateStr) {
+                const d = new Date(dateStr + 'T00:00:00');
+                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                return weekdays[d.getDay()];
+            }
+
+            function getWeekdayNum(dateStr) {
+                const d = new Date(dateStr + 'T00:00:00');
+                return d.getDay();
+            }
+
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
+            }
+
+            function getTodayStr() {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                const d = String(now.getDate()).padStart(2, '0');
+                return y + '-' + m + '-' + d;
+            }
+
+            // 获取某周的所有日期范围（周一到周日）
+            function getWeekDates(weekNum) {
+                // 使用本学期第一周周一作为参考，但这里我们根据已有数据推断
+                // 简化：直接筛选该周次的记录
+                return null;
+            }
+
+            // 获取记录的分类标签
+            function getCategoryLabel(category) {
+                switch (category) {
+                    case 'lunch':
+                        return '午餐';
+                    case 'sports':
+                        return '综合体育课逗留';
+                    case 'hygiene':
+                        return '卫生情况';
+                    default:
+                        return category;
+                }
+            }
+
+            function getCategoryTagClass(category) {
+                return 'tag-' + category;
+            }
+
+            function getRecordDisplayText(record) {
+                let text = '';
+                if (record.category === 'lunch') {
+                    const subLabel = record.subCategory === 'lunch-tray' ? '餐盘摆放不整齐' : '泔脚桶边上有垃圾';
+                    text = '🍽️ 午餐 - ' + subLabel + ' - ' + record.className;
+                } else if (record.category === 'sports') {
+                    text = '🏃 综合体育课逗留 - ' + record.className + (record.studentName ? ' - ' + record
+                        .studentName + '同学' : '');
+                } else if (record.category === 'hygiene') {
+                    const subLabel = record.subCategory === 'hygiene-outdoor' ? '室外包干区' :
+                        record.subCategory === 'hygiene-indoor' ? '室内包干区' : '教室卫生';
+                    const probLabel = record.problem === 'dirty' ? '不干净' : '有垃圾';
+                    text = '🧹 卫生情况 - ' + subLabel + ' - ' + record.className + (record.location ? ' - ' + record
+                        .location : '') + ' - ' + probLabel;
+                }
+                return text;
+            }
+
+            // ==================== 状态管理 ====================
+            let currentDate = getTodayStr();
+            let currentWeek = 1;
+            let selectedCategory = 'lunch';
+            let selectedLunchSub = 'lunch-tray';
+            let selectedHygieneSub = 'hygiene-outdoor';
+            let selectedHygieneProblem = 'dirty';
+            let selectedGrade = '六';
+            let selectedClassNum = null; // 1-7
+
+            // ==================== DOM 引用 ====================
+            const datePicker = document.getElementById('datePicker');
+            const weekSelect = document.getElementById('weekSelect');
+            const weekdayDisplay = document.getElementById('weekdayDisplay');
+            const todayBadge = document.getElementById('todayBadge');
+            const weekBadge = document.getElementById('weekBadge');
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            const lunchOptions = document.getElementById('lunchOptions');
+            const hygieneOptions = document.getElementById('hygieneOptions');
+            const hygieneProblemRow = document.getElementById('hygieneProblemRow');
+            const hygieneLocationRow = document.getElementById('hygieneLocationRow');
+            const sportsNameRow = document.getElementById('sportsNameRow');
+            const hygieneLocationInput = document.getElementById('hygieneLocationInput');
+            const studentNameInput = document.getElementById('studentNameInput');
+            const gradeBtns = document.getElementById('gradeBtns');
+            const classBtns = document.getElementById('classBtns');
+            const addRecordBtn = document.getElementById('addRecordBtn');
+            const recordList = document.getElementById('recordList');
+            const recordDateDisplay = document.getElementById('recordDateDisplay');
+            const summaryWeekSelect = document.getElementById('summaryWeekSelect');
+            const copyWeekBtn = document.getElementById('copyWeekBtn');
+            const weekStats = document.getElementById('weekStats');
+            const summaryContent = document.getElementById('summaryContent');
+            const toast = document.getElementById('toast');
+
+            // ==================== 初始化 ====================
+            function init() {
+                loadData();
+                // 初始化日期
+                datePicker.value = currentDate;
+                updateWeekdayDisplay();
+                // 初始化周次选择器
+                initWeekSelects();
+                // 初始化班级按钮
+                renderClassBtns();
+                // 绑定事件
+                bindEvents();
+                // 更新UI
+                updateAllUI();
+                // 尝试自动推断周次
+                autoInferWeek();
+            }
+
+            function initWeekSelects() {
+                for (let i = 1; i <= 25; i++) {
+                    const opt1 = document.createElement('option');
+                    opt1.value = i;
+                    opt1.textContent = '第' + i + '周';
+                    weekSelect.appendChild(opt1);
+                    const opt2 = document.createElement('option');
+                    opt2.value = i;
+                    opt2.textContent = '第' + i + '周';
+                    summaryWeekSelect.appendChild(opt2);
+                }
+                // 默认第1周
+                weekSelect.value = 1;
+                summaryWeekSelect.value = 1;
+                currentWeek = 1;
+            }
+
+            function autoInferWeek() {
+                // 从已有数据中查找最接近当前日期的周次
+                if (allRecords.length > 0) {
+                    // 找到与当前日期相同的记录
+                    const sameDate = allRecords.filter(r => r.date === currentDate);
+                    if (sameDate.length > 0) {
+                        weekSelect.value = sameDate[0].week;
+                        currentWeek = sameDate[0].week;
+                        return;
+                    }
+                    // 找到最近的日期
+                    const sorted = [...allRecords].sort((a, b) => {
+                        return Math.abs(new Date(a.date) - new Date(currentDate)) - Math.abs(new Date(b.date) -
+                            new Date(currentDate));
+                    });
+                    if (sorted.length > 0) {
+                        const diff = Math.abs(new Date(sorted[0].date) - new Date(currentDate)) / (1000 * 60 * 60 * 24);
+                        if (diff < 14) {
+                            weekSelect.value = sorted[0].week;
+                            currentWeek = sorted[0].week;
+                        }
+                    }
+                }
+                summaryWeekSelect.value = currentWeek;
+            }
+
+            function updateWeekdayDisplay() {
+                weekdayDisplay.textContent = getWeekdayDisplay(currentDate);
+            }
+
+            function renderClassBtns() {
+                classBtns.innerHTML = '';
+                for (let i = 1; i <= 7; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'class-btn';
+                    btn.dataset.classNum = i;
+                    btn.textContent = i + '班';
+                    btn.addEventListener('click', function() {
+                        selectedClassNum = i;
+                        updateClassBtnStyles();
+                        updateAddBtnState();
+                    });
+                    classBtns.appendChild(btn);
+                }
+                updateClassBtnStyles();
+            }
+
+            function updateClassBtnStyles() {
+                document.querySelectorAll('.class-btn').forEach(btn => {
+                    const num = parseInt(btn.dataset.classNum);
+                    if (num === selectedClassNum) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+            }
+
+            function updateGradeBtnStyles() {
+                document.querySelectorAll('.grade-btn').forEach(btn => {
+                    if (btn.dataset.grade === selectedGrade) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+            }
+
+            function getFullClassName() {
+                if (!selectedClassNum) return null;
+                const gradeMap = {
+                    '六': '六',
+                    '七': '七',
+                    '八': '八',
+                    '九': '九'
+                };
+                return gradeMap[selectedGrade] + '(' + selectedClassNum + ')班';
+            }
+
+            function updateAddBtnState() {
+                const className = getFullClassName();
+                let isValid = !!className;
+                if (selectedCategory === 'sports') {
+                    const name = studentNameInput.value.trim();
+                    if (!name) isValid = false;
+                }
+                if (selectedCategory === 'hygiene') {
+                    const loc = hygieneLocationInput.value.trim();
+                    if (!loc) isValid = false;
+                }
+                addRecordBtn.disabled = !isValid;
+            }
+
+            // ==================== 事件绑定 ====================
+            function bindEvents() {
+                // 日期变更
+                datePicker.addEventListener('change', function() {
+                    currentDate = this.value;
+                    updateWeekdayDisplay();
+                    updateAllUI();
+                    autoInferWeekForDate();
+                });
+
+                // 周次变更
+                weekSelect.addEventListener('change', function() {
+                    currentWeek = parseInt(this.value);
+                    updateAllUI();
+                });
+
+                // 分类按钮
+                categoryBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const cat = this.dataset.category;
+                        selectedCategory = cat;
+                        updateCategoryBtnStyles();
+                        updateSubOptionsVisibility();
+                        updateAddBtnState();
+                    });
+                });
+
+                // 午餐子选项
+                document.querySelectorAll('[data-sub^="lunch-"]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        selectedLunchSub = this.dataset.sub;
+                        updateLunchSubBtnStyles();
+                    });
+                });
+
+                // 卫生子选项
+                document.querySelectorAll('[data-sub^="hygiene-"]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.dataset.sub === 'hygiene-outdoor' || this.dataset.sub ===
+                            'hygiene-indoor' || this.dataset.sub === 'hygiene-classroom') {
+                            selectedHygieneSub = this.dataset.sub;
+                            updateHygieneSubBtnStyles();
+                        } else if (this.dataset.sub === 'hygiene-problem-dirty') {
+                            selectedHygieneProblem = 'dirty';
+                            updateHygieneProblemBtnStyles();
+                        } else if (this.dataset.sub === 'hygiene-problem-trash') {
+                            selectedHygieneProblem = 'trash';
+                            updateHygieneProblemBtnStyles();
+                        }
+                    });
+                });
+
+                // 年级按钮
+                gradeBtns.querySelectorAll('.grade-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        selectedGrade = this.dataset.grade;
+                        updateGradeBtnStyles();
+                        updateAddBtnState();
+                    });
+                });
+
+                // 添加按钮
+                addRecordBtn.addEventListener('click', addRecord);
+
+                // 输入框事件
+                hygieneLocationInput.addEventListener('input', updateAddBtnState);
+                studentNameInput.addEventListener('input', updateAddBtnState);
+
+                // 标签页切换
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const tabId = this.dataset.tab;
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove(
+                            'active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove(
+                            'active'));
+                        this.classList.add('active');
+                        document.getElementById(tabId).classList.add('active');
+                        if (tabId === 'tab-summary') {
+                            updateSummaryView();
+                        }
+                        if (tabId === 'tab-add') {
+                            updateAllUI();
+                        }
+                    });
+                });
+
+                // 总结周次选择
+                summaryWeekSelect.addEventListener('change', function() {
+                    updateSummaryView();
+                });
+
+                // 复制周总结
+                copyWeekBtn.addEventListener('click', copyWeekSummary);
+
+                // 键盘快捷键
+                document.addEventListener('keydown', function(e) {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                        e.preventDefault();
+                        if (!addRecordBtn.disabled) {
+                            addRecord();
+                        }
+                    }
+                });
+            }
+
+            function updateCategoryBtnStyles() {
+                categoryBtns.forEach(btn => {
+                    if (btn.dataset.category === selectedCategory) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+            }
+
+            function updateLunchSubBtnStyles() {
+                document.querySelectorAll('[data-sub^="lunch-"]').forEach(btn => {
+                    if (btn.dataset.sub === selectedLunchSub) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+            }
+
+            function updateHygieneSubBtnStyles() {
+                document.querySelectorAll('[data-sub^="hygiene-"]').forEach(btn => {
+                    if (btn.dataset.sub === selectedHygieneSub) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+            }
+
+            function updateHygieneProblemBtnStyles() {
+                document.querySelectorAll('[data-sub^="hygiene-problem-"]').forEach(btn => {
+                    if ((btn.dataset.sub === 'hygiene-problem-dirty' && selectedHygieneProblem === 'dirty') ||
+                        (btn.dataset.sub === 'hygiene-problem-trash' && selectedHygieneProblem === 'trash')) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+            }
+
+            function updateSubOptionsVisibility() {
+                lunchOptions.style.display = selectedCategory === 'lunch' ? 'flex' : 'none';
+                hygieneOptions.style.display = selectedCategory === 'hygiene' ? 'flex' : 'none';
+                hygieneProblemRow.style.display = selectedCategory === 'hygiene' ? 'flex' : 'none';
+                hygieneLocationRow.style.display = selectedCategory === 'hygiene' ? 'flex' : 'none';
+                sportsNameRow.style.display = selectedCategory === 'sports' ? 'flex' : 'none';
+            }
+
+            // ==================== 添加记录 ====================
+            function addRecord() {
+                const className = getFullClassName();
+                if (!className) {
+                    showToast('⚠️ 请选择班级');
+                    return;
+                }
+
+                const record = {
+                    id: generateId(),
+                    date: currentDate,
+                    dateDisplay: formatDateDisplay(currentDate),
+                    week: currentWeek,
+                    weekday: getWeekdayDisplay(currentDate),
+                    category: selectedCategory,
+                    className: className,
+                    timestamp: Date.now(),
+                    grade: selectedGrade,
+                    classNum: selectedClassNum
+                };
+
+                if (selectedCategory === 'lunch') {
+                    record.subCategory = selectedLunchSub;
+                } else if (selectedCategory === 'sports') {
+                    record.subCategory = 'sports-stay';
+                    record.studentName = studentNameInput.value.trim();
+                    if (!record.studentName) {
+                        showToast('⚠️ 请输入学生姓名');
+                        return;
+                    }
+                } else if (selectedCategory === 'hygiene') {
+                    record.subCategory = selectedHygieneSub;
+                    record.problem = selectedHygieneProblem;
+                    record.location = hygieneLocationInput.value.trim();
+                    if (!record.location) {
+                        showToast('⚠️ 请输入具体位置');
+                        return;
+                    }
+                }
+
+                allRecords.push(record);
+                saveData();
+                showToast('✅ 记录已添加');
+
+                // 清空输入
+                if (selectedCategory === 'sports') {
+                    studentNameInput.value = '';
+                } else if (selectedCategory === 'hygiene') {
+                    hygieneLocationInput.value = '';
+                }
+                selectedClassNum = null;
+                updateClassBtnStyles();
+                updateAddBtnState();
+                updateAllUI();
+            }
+
+            // ==================== 删除记录 ====================
+            function deleteRecord(recordId) {
+                allRecords = allRecords.filter(r => r.id !== recordId);
+                saveData();
+                updateAllUI();
+                showToast('🗑️ 记录已删除');
+            }
+
+            // ==================== UI 更新 ====================
+            function updateAllUI() {
+                updateTodayRecordList();
+                updateBadges();
+                updateRecordDateDisplay();
+                updateAddBtnState();
+            }
+
+            function updateRecordDateDisplay() {
+                recordDateDisplay.textContent = formatDateDisplay(currentDate) + ' · ' + getWeekdayDisplay(currentDate) +
+                    ' · 第' + currentWeek + '周';
+            }
+
+            function updateBadges() {
+                const todayRecords = allRecords.filter(r => r.date === currentDate);
+                todayBadge.textContent = todayRecords.length;
+                const weekRecords = allRecords.filter(r => r.week === currentWeek);
+                weekBadge.textContent = weekRecords.length;
+            }
+
+            function updateTodayRecordList() {
+                const todayRecords = allRecords.filter(r => r.date === currentDate);
+                todayRecords.sort((a, b) => b.timestamp - a.timestamp);
+
+                if (todayRecords.length === 0) {
+                    recordList.innerHTML =
+                        '<div class="empty-state"><div class="empty-icon">📭</div><div>暂无记录，请添加</div></div>';
+                    return;
+                }
+
+                let html = '';
+                todayRecords.forEach(rec => {
+                    const catLabel = getCategoryLabel(rec.category);
+                    const tagClass = getCategoryTagClass(rec.category);
+                    const displayText = getRecordDisplayText(rec);
+                    html += `
+                        <div class="record-item category-${rec.category}">
+                            <span class="record-category-tag ${tagClass}">${catLabel}</span>
+                            <span class="record-info">${displayText}</span>
+                            <button class="delete-btn" data-record-id="${rec.id}" title="删除">✕</button>
+                        </div>
+                    `;
+                });
+                recordList.innerHTML = html;
+
+                // 绑定删除事件
+                recordList.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        deleteRecord(this.dataset.recordId);
+                    });
+                });
+            }
+
+            // ==================== 周总结 ====================
+            function getWeekRecords(weekNum) {
+                return allRecords.filter(r => r.week === weekNum);
+            }
+
+            function updateSummaryView() {
+                const weekNum = parseInt(summaryWeekSelect.value);
+                const weekRecords = getWeekRecords(weekNum);
+
+                // 统计
+                updateWeekStats(weekRecords);
+                // 汇总内容
+                renderSummaryContent(weekRecords, weekNum);
+            }
+
+            function updateWeekStats(records) {
+                const totalCount = records.length;
+                const lunchCount = records.filter(r => r.category === 'lunch').length;
+                const sportsCount = records.filter(r => r.category === 'sports').length;
+                const hygieneCount = records.filter(r => r.category === 'hygiene').length;
+                const classSet = new Set(records.map(r => r.className));
+                const uniqueClasses = classSet.size;
+                const dateSet = new Set(records.map(r => r.date));
+                const uniqueDates = dateSet.size;
+
+                weekStats.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${totalCount}</div>
+                        <div class="stat-label">总记录数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${lunchCount}</div>
+                        <div class="stat-label">午餐问题</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${sportsCount}</div>
+                        <div class="stat-label">体育课逗留</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${hygieneCount}</div>
+                        <div class="stat-label">卫生问题</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${uniqueClasses}</div>
+                        <div class="stat-label">涉及班级</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${uniqueDates}</div>
+                        <div class="stat-label">检查天数</div>
+                    </div>
+                `;
+            }
+
+            function renderSummaryContent(records, weekNum) {
+                if (records.length === 0) {
+                    summaryContent.innerHTML =
+                        '<div class="empty-state"><div class="empty-icon">📊</div><div>该周暂无记录</div></div>';
+                    return;
+                }
+
+                // 按日期分组
+                const dateGroups = {};
+                records.forEach(r => {
+                    if (!dateGroups[r.date]) {
+                        dateGroups[r.date] = [];
+                    }
+                    dateGroups[r.date].push(r);
+                });
+
+                // 排序日期
+                const sortedDates = Object.keys(dateGroups).sort();
+
+                let html = '';
+                sortedDates.forEach(dateStr => {
+                    const dayRecords = dateGroups[dateStr];
+                    const summaryText = generateDailySummary(dateStr, dayRecords, weekNum);
+                    const weekday = dayRecords[0]?.weekday || getWeekdayDisplay(dateStr);
+                    html += `
+                        <div class="summary-date-group">
+                            <div class="summary-date-header">
+                                <span>📅 ${dayRecords[0]?.dateDisplay || formatDateDisplay(dateStr)} · ${weekday} · 第${weekNum}周</span>
+                                <button class="copy-day-btn" data-date="${dateStr}" data-week="${weekNum}">📋 复制当日</button>
+                            </div>
+                            <div class="summary-text">${escapeHtml(summaryText)}</div>
+                        </div>
+                    `;
+                });
+
+                summaryContent.innerHTML = html;
+
+                // 绑定复制单日按钮
+                summaryContent.querySelectorAll('.copy-day-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const d = this.dataset.date;
+                        const w = parseInt(this.dataset.week);
+                        const dayRecs = allRecords.filter(r => r.date === d && r.week === w);
+                        const text = generateDailySummary(d, dayRecs, w);
+                        copyToClipboard(text).then(() => showToast('✅ 当日汇总已复制'));
+                    });
+                });
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML.replace(/\n/g, '<br>');
+            }
+
+            function generateDailySummary(dateStr, dayRecords, weekNum) {
+                const weekday = dayRecords[0]?.weekday || getWeekdayDisplay(dateStr);
+                const dateDisplay = dayRecords[0]?.dateDisplay || formatDateDisplay(dateStr);
+
+                let lines = [];
+                lines.push(dateDisplay + '，第' + weekNum + '周  ' + weekday + '汇总情况');
+
+                // 午餐
+                const lunchTrayClasses = new Set();
+                const lunchTrashClasses = new Set();
+                dayRecords.filter(r => r.category === 'lunch').forEach(r => {
+                    if (r.subCategory === 'lunch-tray') {
+                        lunchTrayClasses.add(r.className);
+                    } else if (r.subCategory === 'lunch-trash') {
+                        lunchTrashClasses.add(r.className);
+                    }
+                });
+
+                if (lunchTrayClasses.size > 0 || lunchTrashClasses.size > 0) {
+                    let lunchLine = '1、午餐：';
+                    if (lunchTrayClasses.size > 0) {
+                        lunchLine += '餐盘摆放不整齐的有：' + [...lunchTrayClasses].join('、');
+                    }
+                    if (lunchTrashClasses.size > 0) {
+                        if (lunchTrayClasses.size > 0) lunchLine += '\n      ';
+                        lunchLine += '泔脚桶边上有垃圾的有：' + [...lunchTrashClasses].join('、');
+                    }
+                    lines.push(lunchLine);
+                }
+
+                // 综合体育课逗留
+                const sportsRecords = dayRecords.filter(r => r.category === 'sports');
+                if (sportsRecords.length > 0) {
+                    const sportsParts = sportsRecords.map(r => r.className + (r.studentName ? r.studentName + '同学' : ''));
+                    lines.push('2、综合体育课逗留：' + sportsParts.join('、'));
+                }
+
+                // 卫生情况
+                const outdoorRecords = dayRecords.filter(r => r.category === 'hygiene' && r.subCategory === 'hygiene-outdoor');
+                const indoorRecords = dayRecords.filter(r => r.category === 'hygiene' && r.subCategory === 'hygiene-indoor');
+                const classroomRecords = dayRecords.filter(r => r.category === 'hygiene' && r.subCategory ===
+                    'hygiene-classroom');
+
+                if (outdoorRecords.length > 0 || indoorRecords.length > 0 || classroomRecords.length > 0) {
+                    lines.push('3、卫生情况：');
+                    if (outdoorRecords.length > 0) {
+                        const parts = outdoorRecords.map(r => {
+                            const prob = r.problem === 'dirty' ? '不干净' : '有垃圾';
+                            return r.className + (r.location || '') + '地方' + prob;
+                        });
+                        lines.push('室外包干区：' + parts.join('、'));
+                    }
+                    if (indoorRecords.length > 0) {
+                        const parts = indoorRecords.map(r => {
+                            const prob = r.problem === 'dirty' ? '不干净' : '有垃圾';
+                            return r.className + (r.location || '') + '地方' + prob;
+                        });
+                        lines.push('室内包干区：' + parts.join('、'));
+                    }
+                    if (classroomRecords.length > 0) {
+                        const parts = classroomRecords.map(r => {
+                            const prob = r.problem === 'dirty' ? '不干净' : '有垃圾';
+                            return r.className + (r.location || '') + prob;
+                        });
+                        lines.push('教室卫生：' + parts.join('、'));
+                    }
+                }
+
+                return lines.join('\n');
+            }
+
+            function generateWeekSummaryText(weekNum) {
+                const weekRecords = getWeekRecords(weekNum);
+                if (weekRecords.length === 0) return '';
+
+                const dateGroups = {};
+                weekRecords.forEach(r => {
+                    if (!dateGroups[r.date]) {
+                        dateGroups[r.date] = [];
+                    }
+                    dateGroups[r.date].push(r);
+                });
+                const sortedDates = Object.keys(dateGroups).sort();
+
+                let result = '';
+                sortedDates.forEach((dateStr, index) => {
+                    const dayRecs = dateGroups[dateStr];
+                    const text = generateDailySummary(dateStr, dayRecs, weekNum);
+                    if (index > 0) result += '\n\n';
+                    result += text;
+                });
+                return result;
+            }
+
+            async function copyWeekSummary() {
+                const weekNum = parseInt(summaryWeekSelect.value);
+                const text = generateWeekSummaryText(weekNum);
+                if (!text) {
+                    showToast('⚠️ 该周暂无记录');
+                    return;
+                }
+                await copyToClipboard(text);
+                showToast('✅ 本周汇总已复制');
+                // 按钮反馈
+                copyWeekBtn.textContent = '✅ 已复制！';
+                setTimeout(() => {
+                    copyWeekBtn.textContent = '📋 一键复制本周汇总';
+                }, 1500);
+            }
+
+            async function copyToClipboard(text) {
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        // fallback
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                    }
+                } catch (e) {
+                    console.error('复制失败:', e);
+                    showToast('⚠️ 复制失败，请手动复制');
+                }
+            }
+
+            function autoInferWeekForDate() {
+                // 如果有该日期的记录，使用记录的周次
+                const sameDate = allRecords.filter(r => r.date === currentDate);
+                if (sameDate.length > 0) {
+                    weekSelect.value = sameDate[0].week;
+                    currentWeek = sameDate[0].week;
+                }
+                updateAllUI();
+            }
+
+            // ==================== Toast ====================
+            let toastTimeout = null;
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                if (toastTimeout) clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            }
+
+            // ==================== 启动 ====================
+            init();
+            // 初始更新子选项可见性
+            updateSubOptionsVisibility();
+            updateCategoryBtnStyles();
+            updateLunchSubBtnStyles();
+            updateHygieneSubBtnStyles();
+            updateHygieneProblemBtnStyles();
+            updateGradeBtnStyles();
+            updateClassBtnStyles();
+            updateAddBtnState();
+        })();
+    </script>
+</body>
+</html>
